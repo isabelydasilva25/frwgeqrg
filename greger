@@ -1,0 +1,143 @@
+-- Working version with detailed comments
+CREATE TABLE IF NOT EXISTS pagamentos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_cliente INTEGER NOT NULL,
+    valor REAL NOT NULL,
+    data_pagamento DATE NOT NULL,
+    forma_pagamento VARCHAR(50) NOT NULL, -- Adicionado vírgula aqui
+    status VARCHAR(50) NOT NULL -- Campo adicionado para resolver o erro
+);
+INSERT INTO pagamentos (id_cliente, valor, data_pagamento, forma_pagamento, status)
+VALUES (
+    1,
+    150.00,
+    '2023-10-05',
+    'PIX',
+    'pendente' -- Valor para o campo status
+);
+SELECT * FROM pagamentos;
+-- Adicionando tabela de pagamentos
+CREATE TABLE IF NOT EXISTS pagamentos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_cliente INTEGER NOT NULL,
+  valor REAL NOT NULL,
+  data_pagamento DATE NOT NULL,
+  mes_referencia VARCHAR(20) NOT NULL,
+  forma_pagamento VARCHAR(50) NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id)
+);
+
+INSERT INTO pagamentos (id_cliente, valor, data_pagamento, mes_referencia, forma_pagamento, status)
+VALUES (
+  1,
+  150.00,
+  '2023-10-05',
+  'Outubro/2023',
+  'PIX',
+  'Pago'
+);
+
+SELECT * FROM pagamentos;
+
+-- Tabela de treinos
+CREATE TABLE IF NOT EXISTS treinos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome VARCHAR(100) NOT NULL,
+  descricao TEXT,
+  nivel_dificuldade VARCHAR(20)
+);
+
+INSERT INTO treinos (nome, descricao, nivel_dificuldade)
+VALUES (
+  'Treino de pernas',
+  'Série completa para membros inferiores',
+  'Intermediário'
+);
+
+SELECT * FROM treinos;
+
+-- Tabela de relacionamento cliente-treino
+CREATE TABLE IF NOT EXISTS cliente_treino (
+  id_cliente INTEGER NOT NULL,
+  id_treino INTEGER NOT NULL,
+  data_atribuicao DATE NOT NULL,
+  PRIMARY KEY (id_cliente, id_treino),
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id),
+  FOREIGN KEY (id_treino) REFERENCES treinos(id)
+);
+
+-- Adicionando coluna de cargo_id na tabela Funcionario para relacionamento
+ALTER TABLE Funcionario ADD COLUMN cargo_id INTEGER;
+UPDATE Funcionario SET cargo_id = 1 WHERE id = 1;
+
+-- Adicionando foreign key para relacionar Funcionario com Cargo
+ALTER TABLE Funcionario ADD CONSTRAINT fk_cargo
+FOREIGN KEY (cargo_id) REFERENCES cargo(id);
+
+-- Tabela de avaliações físicas
+CREATE TABLE IF NOT EXISTS avaliacoes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_cliente INTEGER NOT NULL,
+  data_avaliacao DATE NOT NULL,
+  peso DECIMAL(5,2),
+  altura DECIMAL(3,2),
+  imc DECIMAL(5,2),
+  percentual_gordura DECIMAL(5,2),
+  observacoes TEXT,
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id)
+);
+
+INSERT INTO avaliacoes (id_cliente, data_avaliacao, peso, altura, imc, percentual_gordura, observacoes)
+VALUES (
+  1,
+  '2023-10-01',
+  65.5,
+  1.68,
+  23.21,
+  22.5,
+  'Boa composição corporal, recomendo focar em exercícios aeróbicos'
+);
+
+SELECT * FROM avaliacoes;
+
+-- Tabela de horários de aulas
+CREATE TABLE IF NOT EXISTS horarios_aulas (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome_aula VARCHAR(100) NOT NULL,
+  dia_semana VARCHAR(20) NOT NULL,
+  horario_inicio TIME NOT NULL,
+  horario_fim TIME NOT NULL,
+  id_instrutor INTEGER,
+  capacidade INTEGER,
+  FOREIGN KEY (id_instrutor) REFERENCES Funcionario(id)
+);
+
+INSERT INTO horarios_aulas (nome_aula, dia_semana, horario_inicio, horario_fim, id_instrutor, capacidade)
+VALUES (
+  'Zumba',
+  'Segunda',
+  '18:00',
+  '19:00',
+  1,
+  20
+);
+
+SELECT * FROM horarios_aulas;
+
+-- Tabela de presença em aulas
+CREATE TABLE IF NOT EXISTS presenca_aulas (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_aula INTEGER NOT NULL,
+  id_cliente INTEGER NOT NULL,
+  data_aula DATE NOT NULL,
+  presente BOOLEAN NOT NULL,
+  FOREIGN KEY (id_aula) REFERENCES horarios_aulas(id),
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id)
+);
+
+-- Criando índices para melhorar performance nas consultas frequentes
+CREATE INDEX idx_cliente_nome ON clientes(nome);
+CREATE INDEX idx_funcionario_nome ON Funcionario(nome);
+CREATE INDEX idx_pagamentos_cliente ON pagamentos(id_cliente);
+CREATE INDEX idx_movimento_cliente ON movimento(cliente);
